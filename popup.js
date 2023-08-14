@@ -2,7 +2,7 @@ let extensions
 async function toggleMuteExt(e) {
   const id = e.target.id.replace('mute-', '');
   let { muted } = await chrome.storage.local.get('muted')
-  chrome.runtime.sendMessage({ type: 'toggleMute', data: { id, muted: !muted[id] } });  
+  await chrome.runtime.sendMessage({ type: 'toggleMute', data: { id, muted: !muted[id] } });  
   await updateList(extensions);
 }
 
