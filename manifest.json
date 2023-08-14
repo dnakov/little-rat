@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "version": "1.0",
+  "name": "Little Rat",
+  "background": {
+    "service_worker": "service-worker.js"
+  },  
+  "permissions": [
+    "declarativeNetRequest", "declarativeNetRequestFeedback", "management", "storage"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules_1.json"
+      }
+    ]
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "128": "rat-128.png"
+  }
+}
