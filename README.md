@@ -11,7 +11,7 @@ Small chrome extension to monitor other extensions' network calls
     - Click *Open*.
 
 ### Screenshot
-![screenshot](assets/Screenshot1.jpg)
+![screenshot](assets/Screenshot1.png)
 
 ### Author
 https://twitter.com/dnak0v
