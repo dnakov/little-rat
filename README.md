@@ -1,4 +1,4 @@
-# little-rat
+# <img src="rat-128.png" width="24" />  little-rat
 Small chrome extension to monitor other extensions' network calls
 ### Installation (Chrome/Chromium/Arc/etc)
 - Download the [ZIP](https://github.com/dnakov/little-rat/archive/refs/heads/main.zip) of this repo.
