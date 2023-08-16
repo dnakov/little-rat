@@ -3,6 +3,7 @@ let popup;
 let muted;
 let requests = {};
 let needSave = false;
+let lastNotify = +new Date();
 
 chrome.storage.local.get(s => {
   muted = s?.muted || {};
@@ -16,8 +17,10 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
-async function notifyPopup() {
-  if (popup) {
+async function notifyPopup(directRun=false) {
+  let now = +new Date();
+  if ((directRun || now - lastNotify > 1000) && popup) {
+    lastNotify = now;
     chrome.runtime.sendMessage({ type: 'init', data: await getExtensions() });
   }
 }
@@ -82,7 +85,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     await chrome.storage.local.set({ requests });
   }
   await sendResponse();
-  await notifyPopup();
+  await notifyPopup(true);
 });
 
 
@@ -93,5 +96,5 @@ chrome.runtime.onConnect.addListener(async (port) => {
   popup = port;
   badgeNum = 0;
   chrome.action.setBadgeText({ text: '' });
-  await notifyPopup();
+  await notifyPopup(true);
 });
