@@ -2,8 +2,13 @@ let extensions;
 
 async function toggleMuteExt(e) {
   const id = e.target.id.replace('mute-', '');
-  let { muted } = await chrome.storage.local.get('muted')
-  await chrome.runtime.sendMessage({ type: 'toggleMute', data: { id, muted: !muted[id] } });  
+  await chrome.runtime.sendMessage({ type: 'toggleMute', data: { id } });  
+  await updateList(extensions);
+}
+
+async function toggleBlockExt(e) {
+  const id = e.target.id.replace('block-', '');
+  await chrome.runtime.sendMessage({ type: 'toggleBlock', data: { id } });  
   await updateList(extensions);
 }
 
@@ -57,20 +62,17 @@ function patchDOM(oldNode, newNode, parent) {
 
 async function updateList(exts) {
   extensions = Object.values(exts).sort((a, b) => {
-    const diff = b.numRequests - a.numRequests;
+    const diff = (b.numRequestsAllowed + b.numRequestsBlocked) - (a.numRequestsAllowed + a.numRequestsBlocked);
     if(diff === 0) return a.name.localeCompare(b.name);
     return diff;
   });
 
-  let { muted } = await chrome.storage.local.get('muted')
-  if(!muted) {
-    muted = {};
-    await chrome.storage.local.set({ muted });
-  }
-  const extsList = document.createElement('tbody');
+  
+  const extsList = document.createElement('div');
   extsList.id = 'exts-body'
+  let innerHTML = ''
   for (let ext of extensions) {
-    const tr = document.createElement('tr');
+    const tr = document.createElement('div');
     tr.id = ext.id
     let icon
     if(!ext.icon || ext.icon.endsWith('undefined')) {
@@ -82,31 +84,39 @@ async function updateList(exts) {
     // NOTE: this is not XSS-safe but the risk is minimal, considering:
     // 1. Only runs in popup, where CSP doesn't not allow inline scripts
     // 2. Extension does not have the "tabs" permission or host permissions
-    tr.innerHTML = `
-      <td><div id='mute-${ext.id}' style='cursor: pointer;'>${muted[ext.id] ? '\u{1F507}' : '\u{1F508}'}</div></td>
-      <td>${icon}</td>
-      <td>
-        <details class='ext-name'>
-          <summary>${ext.name}</summary>
-          ${Object.keys(ext.reqUrls).map(url => `
-            <div>
-              <div style="flex: 1;"><pre>${url}</pre></div>
-              <div style="margin-right: auto;">${ext.reqUrls[url]}</div>
-            </div>
-          `).join(' ')}
-        </details>
-      </td>
-      <td><div style="margin-left: 4px; color: #999;">${ext.numRequests}</div></td>
+    innerHTML += `
+    <details class='item'>
+      <summary>
+        <div class='grid'>
+          <div id='mute-${ext.id}' style='cursor: pointer;'>${ext.muted ? '\u{1F507}' : '\u{1F508}'}</div>
+          <div id='block-${ext.id}' style='opacity: ${ext.blocked ? '100%' : '10%'}; cursor: pointer;'>\u{1F6AB}</div>
+          <div>${icon}</div>
+          <div>${ext.name}</div>            
+          <div style="margin-left: 4px; color: #999;">${ext.numRequestsAllowed}${ext.numRequestsBlocked ? ` | <span style='color: red;'>${ext.numRequestsBlocked}</span>` : ''}</div>
+        </div>
+      </summary>
+      <div class='requests'>
+      ${Object.keys(ext.reqUrls).map(url => `
+        <pre>${url}</pre>
+        <div><div>${ext.reqUrls[url].allowed}${ext.reqUrls[url].blocked ? ` | <span style='color: red;'>${ext.reqUrls[url].blocked}</span>` : ''}</div></div>
+      `).join(' ')}
+      </div>
+
+    </details>
     `
-    extsList.appendChild(tr);
   }
+  extsList.innerHTML = innerHTML;
   patchDOM(document.getElementById('exts-body'), extsList, document.getElementById('exts-body').parent);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('extensions').addEventListener('click', (e) => {
+  document.getElementById('exts-body').addEventListener('click', (e) => {
     if(e.target.id.startsWith('mute-')) {
       toggleMuteExt(e);
+      e.preventDefault();
+    } else if (e.target.id.startsWith('block-')) {
+      toggleBlockExt(e);
+      e.preventDefault();
     }
   })
   document.getElementById('reset').addEventListener('click', 

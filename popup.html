@@ -7,50 +7,89 @@
           list-style-type: none; 
           width: 100%; 
           padding: 1em; 
-          font-size: 14px;
         }
         #container {
           min-width: 300px;
-        }
-        #container > div {
-          display: flex;
-          align-items: center;
-          padding: 0 1em;
+          font-size: 14px;
         }
         #logo {
           height: 24px; 
           vertical-align:middle;
         }
-        .ext-name > div {
-          display: flex; 
-          gap: 1em; 
-          padding: 0 1em; 
-          max-width: 300px;
-          font-size: 12px;
-        }
-        .ext-name pre {
-          word-break: break-all; 
-          white-space: pre-wrap; 
-          margin: 2px 0;
-          font-size: 10px;       
-        }
         #reset {
           float: right;
         }
+        .grid {
+          width: calc(100% - 20px);
+          display: inline-grid; 
+          grid-template-columns: 16px 16px 16px auto minmax(min-content, max-content); 
+          gap: 2px;
+        }
+        .requests {
+          margin: 0.5rem 0;
+          width: 100%;
+          display: inline-grid;
+          row-gap: 4px;
+          grid-template-columns: auto minmax(50px, max-content);
+          font-size: 0.75rem;
+        }
+        .requests > pre {
+          word-break: break-all; 
+          white-space: pre-wrap; 
+          margin: 0;
+          padding-left: 0.5rem;
+        }
+        .requests > div {
 
+          height: 100%;
+          text-align: right;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          padding-right: 0.5rem;
+        }        
+        .requests > *:nth-child(4n+3), .requests > *:nth-child(4n+4) {
+          background-color: #eeeeee7f;
+        }
+        .exts-body {
+          width: 100%;
+        }
+        .item > summary {
+          margin-top: 8px;
+        }
+        .item[open] > summary {
+          background-color: rgba(255, 255, 0, 0.25);
+        }
+        .app-header {
+          display: flex;
+          justify-content: space-between;
+          border-bottom: 1px solid #ccc;
+          padding-bottom: 0.5em;
+        }
       </style>
       <script src="popup.js"></script>
   </head>
   <body>
-    <div id="container" style="min-width: 300px;">
-      <button id="reset">Reset</button>
-      <div>
+    <div id="container" style="min-width: 400px;">
+      
+      <div class="app-header">
         <img id="logo" src="rat-128.png" alt="logo"/>
-        <h1 style="margin: auto 0 auto 1em; ">Little Rat</h1>
+        <h3 style="margin: auto 0 auto 1em; ">Little Rat</h3>
+        <button id="reset">Reset</button>
+      </div>
+      <div id="exts-body">
       </div>
       
-      <table id="extensions">
-        <tbody id="exts-body"></tbody>
+      </div>
+      <table id="extensions2">
+        <thead>
+          <td style="width: 16px;"></td>
+          <td style="width: 16px;"></td>
+          <td style="width: 16px;"></td>
+          <td style="width: 300px;"></td>
+          <td style="width: 100px;"></td>
+        </thead>
+        <tbody id="exts-body2"></tbody>
       </table>
     </div>
   </body>

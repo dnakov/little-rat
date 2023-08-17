@@ -1,6 +1,6 @@
 [
   {
-    "id": 1,
+    "id": 49999,
     "priority": 1,
     "action": { "type": "allow" },
     "condition": {
@@ -22,7 +22,7 @@
         "webbundle",
         "other"
       ],
-      "domainTypes": "thirdParty"
+      "domainType": "thirdParty"
     }
   }
 ]
