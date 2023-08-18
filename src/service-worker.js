@@ -73,7 +73,7 @@ async function setupListener() {
         badgeNum += 1;
         updateBadge();
       }
-      notifyPopup(true);
+      notifyPopup();
     }
   }));
 }
