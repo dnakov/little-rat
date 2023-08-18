@@ -1,26 +1,30 @@
 {
   "manifest_version": 3,
-  "version": "1.0",
+  "version": "1.1",
   "name": "Little Rat",
   "background": {
-    "service_worker": "service-worker.js"
+    "service_worker": "src/service-worker.js",
+    "type": "module"
   },  
   "permissions": [
-    "declarativeNetRequest", "declarativeNetRequestFeedback", "management", "storage"
+    "declarativeNetRequest", "storage", "declarativeNetRequestFeedback", "management"
   ],
   "declarative_net_request": {
     "rule_resources": [
       {
         "id": "ruleset_1",
         "enabled": true,
-        "path": "rules_1.json"
+        "path": "src/rules_1.json"
       }
     ]
   },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "src/popup.html"
   },
   "icons": {
-    "128": "rat-128.png"
-  }
+    "128": "assets/little-rat-128x128.png",
+    "48": "assets/little-rat-48x48.png",
+    "16": "assets/little-rat-16x16.png"
+  },
+  "options_page": "src/popup.html"
 }
