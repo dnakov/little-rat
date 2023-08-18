@@ -38,39 +38,45 @@ function updateBadge() {
     chrome.action.setBadgeText({ text: badgeNum.toString() });
   }
 }
-
-chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
-  if (e.request.initiator?.startsWith('chrome-extension://')) {
-    const k = e.request.initiator.replace('chrome-extension://', '');
-    if(!requests[k]) {
-      requests[k] = { reqUrls: {}, numRequestsAllowed: 0, numRequestsBlocked: 0 };
-    }
-    const req = requests[k];
-    const url = [e.request.method, e.request.url].filter(Boolean).join(' ');
-    req.numRequestsAllowed = req.numRequestsAllowed || 0;
-    req.numRequestsBlocked = req.numRequestsBlocked || 0;
-
-    if(!req.reqUrls[url] || typeof req.reqUrls[url] !== 'object') {
-      req.reqUrls[url] = { blocked: 0, allowed: typeof req.reqUrls[url] === 'number' ? req.reqUrls[url] : 0 };
-    }
-    
-    if(e.rule.ruleId === 1) {
-      req.numRequestsBlocked += 1;
-      req.reqUrls[url].blocked += 1;
-    } else {
-      req.numRequestsAllowed += 1;
-      req.reqUrls[url].allowed += 1;
-    }
-    
-    needSave = true;
-
-    if(!popup && !muted?.[k]) {
-      badgeNum += 1;
-      updateBadge();
-    }
-    notifyPopup();
+async function setupListener() {
+  const hasPerm = await chrome.permissions.contains({permissions: ['declarativeNetRequestFeedback']})
+  if(!hasPerm) {
+    return;
   }
-});
+  if(!chrome.declarativeNetRequest?.onRuleMatchedDebug) return;
+  console.log(chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
+    if (e.request.initiator?.startsWith('chrome-extension://')) {
+      const k = e.request.initiator.replace('chrome-extension://', '');
+      if(!requests[k]) {
+        requests[k] = { reqUrls: {}, numRequestsAllowed: 0, numRequestsBlocked: 0 };
+      }
+      const req = requests[k];
+      const url = [e.request.method, e.request.url].filter(Boolean).join(' ');
+      req.numRequestsAllowed = req.numRequestsAllowed || 0;
+      req.numRequestsBlocked = req.numRequestsBlocked || 0;
+
+      if(!req.reqUrls[url] || typeof req.reqUrls[url] !== 'object') {
+        req.reqUrls[url] = { blocked: 0, allowed: typeof req.reqUrls[url] === 'number' ? req.reqUrls[url] : 0 };
+      }
+      
+      if(e.rule.ruleId === 1) {
+        req.numRequestsBlocked += 1;
+        req.reqUrls[url].blocked += 1;
+      } else {
+        req.numRequestsAllowed += 1;
+        req.reqUrls[url].allowed += 1;
+      }
+      
+      needSave = true;
+
+      if(!popup && !muted?.[k]) {
+        badgeNum += 1;
+        updateBadge();
+      }
+      notifyPopup(true);
+    }
+  }));
+}
 
 setInterval(() => {
   if (needSave) {
@@ -81,6 +87,8 @@ setInterval(() => {
 
 async function getExtensions() {
   const extensions = {}
+  const hasPerm = await chrome.permissions.contains({permissions: ['management']})
+  if(!hasPerm) return [];
   const extInfo = await chrome.management.getAll()
   for(let { enabled, name, id, icons } of extInfo) {
     if(!enabled) continue;
@@ -90,7 +98,7 @@ async function getExtensions() {
       numRequestsAllowed: 0,
       numRequestsBlocked: 0,
       reqUrls: {},
-      icon: icons?.[0]?.url,
+      icon: icons?.[icons?.length - 1]?.url,
       blocked: blocked[id],
       muted: muted[id],
       ...(requests[id] || {})
@@ -143,3 +151,8 @@ async function updateBlockedRules() {
   await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [1], addRules })
   console.log(await chrome.declarativeNetRequest.getDynamicRules())
 }
+
+setupListener();
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.runtime.openOptionsPage();
+});
