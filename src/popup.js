@@ -31,12 +31,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     () => chrome.runtime.sendMessage({ type: 'reset' }));
   document.getElementById('request-perm').addEventListener('click', 
     async () => {
-      const granted = await chrome.permissions.request({permissions: ['declarativeNetRequestFeedback', 'management']})
+      const granted = await chrome.permissions.request({permissions: ['management']})
       if(granted) {
         chrome.runtime.reload();
       }
     });
-  const hasPerm = await chrome.permissions.contains({permissions: ['declarativeNetRequestFeedback']})
+  const hasPerm = await chrome.permissions.contains({permissions: ['management']})
   if(!hasPerm) {
     document.querySelector('.permissions').style.visibility = 'visible';
   }
