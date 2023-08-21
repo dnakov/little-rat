@@ -23,6 +23,9 @@ Get it [here](https://chrome.google.com/webstore/detail/little-rat/oiopkpalpilla
 ### Screenshots  
   <img src="assets/screen-gh-local2.png" alt="Screenshot2 for Manual" width="1280"/>
 
-
+### Open-Source Libraries <3
+- Icons from (feathericons.com)[https://feathericons.com/]
 ### Author
 https://twitter.com/dnak0v
+
+

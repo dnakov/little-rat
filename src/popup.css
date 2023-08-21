@@ -18,8 +18,9 @@
 .grid {
   width: calc(100% - 20px);
   display: inline-grid; 
-  grid-template-columns: 16px 16px 16px auto minmax(min-content, max-content); 
-  gap: 2px;
+  grid-template-columns: 16px 16px 16px 16px auto minmax(min-content, max-content); 
+  gap: .5rem;
+  vertical-align: top;
 }
 .requests {
   margin: 0.5rem 0;
@@ -43,21 +44,61 @@
     justify-content: flex-end;
     padding-right: 0.5rem;  
   }
-  > *:nth-child(4n+3), .requests > *:nth-child(4n+4) {
+  > *:nth-child(4n+3), > *:nth-child(4n+4) {
     background-color: #eeeeee7f;
   }
 }
 .exts-body {
   width: 100%;
 }
-.item > summary {
-  margin-top: 8px;
+.pointer {
+  cursor: pointer;
 }
-.item.muted > summary {
-  color: #999;
+.item {
+  > summary {
+    margin-top: .5rem;
+  }
 }
-.item.blocked > summary {
-  color: #f00;
+.item-mute {
+  background-image: url('icons/volume-on.svg');
+  background-size: 16px;
+  background-repeat: no-repeat;
+}
+.item.muted {
+  > summary {
+    color: #999;
+  }
+  .item-mute {
+    background-image: url('icons/volume-off.svg')
+  }
+}
+.item-block {
+  background-image: url('icons/wifi-on.svg');
+  background-size: 16px;
+  background-repeat: no-repeat;
+}
+.item.blocked {
+  > summary {
+    color: #f00;
+  }
+  .item-block {
+    background-image: url('icons/wifi-off.svg')
+  }
+}
+.item-toggle {
+  background-image: url('icons/toggle-off.svg');
+  background-size: 16px;
+  background-repeat: no-repeat;
+}
+.item:not(.enabled) {
+  > summary {
+    color: #999;
+  }
+}
+.item.enabled {
+  .item-toggle {
+    background-image: url('icons/toggle-on.svg');
+  }
 }
 .item[open] > summary {
   background-color: rgba(255, 255, 0, 0.25);

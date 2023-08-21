@@ -25,11 +25,12 @@ export async function updateList(exts = extensions, el = document.getElementById
     // 1. Only runs in popup, where CSP doesn't not allow inline scripts
     // 2. Extension does not have the "tabs" permission or host permissions
     innerHTML += `
-    <details class='item ${ext.muted ? 'muted' : ''} ${ext.blocked ? 'blocked' : ''}'>
+    <details class='item ${ext.muted ? ' muted' : ''}${ext.blocked ? ' blocked' : ''}${ext.enabled ? ' enabled' : ''}'>
       <summary>
         <div class='grid'>
-          <div class='item-mute' id='mute-${ext.id}' style='cursor: pointer;'>${ext.muted ? '\u{1F507}' : '\u{1F508}'}</div>
-          <div class='item-block' id='block-${ext.id}' style='opacity: ${ext.blocked ? '100%' : '20%'}; cursor: pointer;'>\u{1F6AB}</div>
+          <div class='item-mute pointer' id='mute-${ext.id}'></div>
+          <div class='item-block pointer' id='block-${ext.id}'></div>
+          <div class='item-toggle pointer' id='toggle-${ext.id}'></div>
           <div class='item-icon'>${icon}</div>
           <div class='item-name'>${ext.name}</div>            
           <div class='item-reqNum' style="margin-left: 4px; color: #999;">${ext.numRequestsAllowed}${ext.numRequestsBlocked ? ` | <span style='color: red;'>${ext.numRequestsBlocked}</span>` : ''}</div>

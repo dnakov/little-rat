@@ -1,5 +1,5 @@
 let badgeNum = 0;
-let popup;
+let ports = {};
 let muted;
 let blocked;
 let requests = {};
@@ -12,24 +12,22 @@ chrome.storage.local.get(s => {
   requests = s?.requests || {};
 });
 
-chrome.runtime.onMessage.addListener(async (message) => {
-  if (message.type === 'toggleMute') {
-    muted[message.data.id] = !muted[message.data.id];
-    chrome.storage.local.set({ muted });
-  } else if (message.type === 'toggleBlock') {
-    blocked[message.data.id] = !blocked[message.data.id];
-    chrome.storage.local.set({ blocked });
-    updateBlockedRules();
-  }
-});
-
-async function notifyPopup(directRun=false) {
-  let now = +new Date();
-  if ((directRun || now - lastNotify > 1000) && popup) {
-    lastNotify = now;
-    chrome.runtime.sendMessage({ type: 'init', data: await getExtensions() });
-  }
+function debounce(func, delay) {
+  let timeout;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), delay);
+  };
 }
+
+async function notifyPopup() {
+  const data = await getExtensions();
+  Object.values(ports).forEach(port => port.postMessage({ type: 'init', data }));
+}
+
+const d_notifyPopup = debounce(notifyPopup, 1000);
 
 function updateBadge() {
   if (badgeNum > 0) {
@@ -44,7 +42,7 @@ async function setupListener() {
     return;
   }
   if(!chrome.declarativeNetRequest?.onRuleMatchedDebug) return;
-  console.log(chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
+  chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((e) => {
     if (e.request.initiator?.startsWith('chrome-extension://')) {
       const k = e.request.initiator.replace('chrome-extension://', '');
       if(!requests[k]) {
@@ -69,13 +67,13 @@ async function setupListener() {
       
       needSave = true;
 
-      if(!popup && !muted?.[k]) {
+      if(!ports.popup && !muted?.[k]) {
         badgeNum += 1;
         updateBadge();
       }
-      notifyPopup();
+      d_notifyPopup();
     }
-  }));
+  });
 }
 
 setInterval(() => {
@@ -91,7 +89,6 @@ async function getExtensions() {
   if(!hasPerm) return [];
   const extInfo = await chrome.management.getAll()
   for(let { enabled, name, id, icons } of extInfo) {
-    if(!enabled) continue;
     extensions[id] = { 
       name,
       id,
@@ -101,30 +98,51 @@ async function getExtensions() {
       icon: icons?.[icons?.length - 1]?.url,
       blocked: blocked[id],
       muted: muted[id],
+      enabled,
       ...(requests[id] || {})
     };
   }
   return extensions;
 }
 
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-  if (message.type === 'reset') {
-    requests = {};
-    await chrome.storage.local.set({ requests });
-  }
-  await sendResponse();
-  await notifyPopup(true);
-});
+
 
 
 chrome.runtime.onConnect.addListener(async (port) => {
-  port.onDisconnect.addListener(()=>{
-    popup = null;
+  const name = port.name;
+  port.onDisconnect.addListener(() => {
+    delete ports[name];
   })
-  popup = port;
-  badgeNum = 0;
-  chrome.action.setBadgeText({ text: '' });
-  await notifyPopup(true);
+  ports[name] = port;
+  if(name === 'popup') {
+    badgeNum = 0;
+    chrome.action.setBadgeText({ text: '' });
+  }
+  
+  port.onMessage.addListener(async (message) => {
+    if (message.type === 'reset') {
+      requests = {};
+      await chrome.storage.local.set({ requests });
+    }
+    await notifyPopup();
+  });
+
+  port.onMessage.addListener(async (message) => {
+    if (message.type === 'toggleMute') {
+      muted[message.data.id] = !muted[message.data.id];
+      chrome.storage.local.set({ muted });
+    } else if (message.type === 'toggleBlock') {
+      blocked[message.data.id] = !blocked[message.data.id];
+      chrome.storage.local.set({ blocked });
+      updateBlockedRules();
+    } else if (message.type === 'toggleExt') {
+      const ext = await chrome.management.get(message.data.id)
+      await chrome.management.setEnabled(message.data.id, !ext.enabled);
+    }
+    await notifyPopup();
+  });
+
+  await notifyPopup();
 });
 
 async function updateBlockedRules() {
@@ -149,7 +167,6 @@ async function updateBlockedRules() {
   }
 
   await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: [1], addRules })
-  console.log(await chrome.declarativeNetRequest.getDynamicRules())
 }
 
 setupListener();
