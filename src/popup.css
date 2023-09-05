@@ -1,3 +1,21 @@
+html {
+  --bg-color-light: rgb(218,220,224);
+  --bg-color-dark: #19191b;
+  --text-color-light: #000;
+  --text-color-dark: rgb(218,220,224);
+  --stripe-color-light: #eeeeee7f;
+  --stripe-color-dark: #3e3e3e7f;
+  --stripe-color: var(--stripe-color-light);
+  --bg-color: var(--bg-color-light);
+  --text-color: var(--text-color-light);
+}
+html.dark {
+  --bg-color: var(--bg-color-dark);
+  --text-color: var(--text-color-dark);
+  --stripe-color: var(--stripe-color-dark);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
 #extensions tr {
   vertical-align: top;
   list-style-type: none; 
@@ -14,6 +32,10 @@
 }
 #reset {
   float: right;
+  background: transparent;
+  border: 1px solid var(--text-color);
+  border-radius: 4px;
+  color: inherit;
 }
 .grid {
   width: calc(100% - 20px);
@@ -45,7 +67,7 @@
     padding-right: 0.5rem;  
   }
   > *:nth-child(4n+3), > *:nth-child(4n+4) {
-    background-color: #eeeeee7f;
+    background-color: var(--stripe-color);
   }
 }
 .exts-body {
@@ -90,9 +112,19 @@
   background-size: 16px;
   background-repeat: no-repeat;
 }
+.theme {
+  width: 16px;
+  height: 16px;
+  margin: auto 0;
+  stroke: var(--text-color);
+}
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
 .item:not(.enabled) {
   > summary {
-    color: #999;
+    color: #5f6368;
   }
 }
 .item.enabled {
@@ -106,7 +138,7 @@
 .app-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #5f6368;
   padding-bottom: 0.5em;
 }
 

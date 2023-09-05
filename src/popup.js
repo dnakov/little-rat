@@ -2,6 +2,7 @@ import { updateList } from './ext-list.js';
 import { IS_STORE } from './constants.js';
 
 const port = chrome.runtime.connect(undefined, { name: location.search?.includes('dashboard') ? 'dashboard' : 'popup' });
+let theme;
 
 async function toggleMuteExt(e) {
   const id = e.target.id.replace('mute-', '');
@@ -22,6 +23,7 @@ async function toggleExt(e) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  setTheme();
   if(IS_STORE) {
     document.body.classList.add('is-store');
     document.getElementById('reset').style.visibility = 'hidden';
@@ -40,6 +42,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   })
   document.getElementById('reset').addEventListener('click', 
     () => port.postMessage({ type: 'reset' }));
+  document.getElementById('theme').addEventListener('click', toggleTheme);
+
   document.getElementById('request-perm').addEventListener('click', 
     async () => {
       const granted = await chrome.permissions.request({permissions: ['management']})
@@ -58,4 +62,22 @@ port.onMessage.addListener((message) => {
     updateList(message.data);
   }
 })
+
+function setTheme(theme) {
+  theme = theme || localStorage.theme;
+  if(!theme) {
+    if(window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      theme = 'dark';
+    } else{ 
+      theme = 'light';
+    }
+    localStorage.theme = theme;
+  }
+  document.documentElement.classList.toggle('dark', theme === 'dark')
+}
+
+function toggleTheme() {
+  localStorage.theme = localStorage.theme === 'dark' ? 'light' : 'dark';
+  setTheme(theme);
+}
 
