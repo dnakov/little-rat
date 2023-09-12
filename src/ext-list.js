@@ -28,12 +28,12 @@ export async function updateList(exts = extensions, el = document.getElementById
     <details class='item ${ext.muted ? ' muted' : ''}${ext.blocked ? ' blocked' : ''}${ext.enabled ? ' enabled' : ''}'>
       <summary>
         <div class='grid'>
-          <div class='item-mute pointer' id='mute-${ext.id}'></div>
-          <div class='item-block pointer' id='block-${ext.id}'></div>
-          <div class='item-toggle pointer' id='toggle-${ext.id}'></div>
+          <div class='item-mute pointer' id='mute-${ext.id}' title='${ext.muted ? 'Unmute' : 'Mute'} notification (badge) for this extension'></div>
+          <div class='item-block pointer' id='block-${ext.id}' title='${ext.blocked ? 'Unblock' : 'Block'} network requests for this extension'></div>
+          <div class='item-toggle pointer' id='toggle-${ext.id}' title='${ext.enabled ? 'Disable' : 'Enable'} extension'></div>
           <div class='item-icon'>${icon}</div>
           <div class='item-name'>${ext.name}</div>            
-          <div class='item-reqNum' style="margin-left: 4px; color: #999;">${ext.numRequestsAllowed}${ext.numRequestsBlocked ? ` | <span style='color: red;'>${ext.numRequestsBlocked}</span>` : ''}</div>
+          <div class='item-reqNum' style="margin-left: 4px; color: #999;"><span title='Num of network requests'>${ext.numRequestsAllowed}</span>${ext.numRequestsBlocked ? ` | <span title='Number of blocked requests' style='color: red;'>${ext.numRequestsBlocked}</span>` : ''}</div>
         </div>
       </summary>
       <div class='requests'>
