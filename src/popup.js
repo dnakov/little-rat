@@ -17,9 +17,10 @@ async function toggleBlockExt(e) {
 }
 
 async function toggleBlockExtUrl(e) {
-  const id = e.target.id.replace('block-ext-url-', '').split(' ');
-  const urlInfo = id[1].split('|');
-  await port.postMessage({ type: 'toggleBlockExtUrl', data: { extId: urlInfo[1], method: id[0], url: urlInfo[0] } });
+  const id = e.target.id.replace('block-ext-url-', '');
+  const url = e.target.dataset.url;
+  const method = e.target.dataset.method;
+  await port.postMessage({ type: 'toggleBlockExtUrl', data: { extId: id, method, url } });
   await updateList();
 }
 

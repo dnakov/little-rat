@@ -38,7 +38,7 @@ export async function updateList(exts = extensions, el = document.getElementById
       </summary>
       <div class='requests'>
       ${Object.keys(ext.reqUrls).map(url => `
-        <div class='item-block pointer ${ext.reqUrls[url].isBlocked ? ' blocked' : ''}' id='block-ext-url-${url}|${ext.id}' title='${ext.reqUrls[url].isBlocked ? 'Unblock' : 'Block'} network requests for this url'></div>
+        <div class='item-block pointer ${ext.reqUrls[url].isBlocked ? ' blocked' : ''}' id='block-ext-url-${ext.id}' data-method='${url.split(' ')[0]}' data-url='${url.split(' ')[1]}' title='${ext.reqUrls[url].isBlocked ? 'Unblock' : 'Block'} network requests for this url'></div>
         <pre>${url}</pre>
         <div><div>${ext.reqUrls[url].allowed}${ext.reqUrls[url].blocked ? ` | <span style='color: red;'>${ext.reqUrls[url].blocked}</span>` : ''}</div></div>
       `).join(' ')}
