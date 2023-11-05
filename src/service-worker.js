@@ -150,14 +150,9 @@ chrome.runtime.onConnect.addListener(async (port) => {
   port.onMessage.addListener(async (message) => {
     if (message.type === 'reset') {
       requests = {};
-      maxRuleId = 1;
-      extRuleIds = {};
-      blockedExtUrls = {};
-      recycleRuleIds = [];
-      allRuleIds = [1];
       const previousRules = await chrome.declarativeNetRequest.getDynamicRules();
       await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: previousRules.map(rule => rule.id) })
-      await chrome.storage.local.set({ requests, maxRuleId, extRuleIds, allRuleIds, blockedExtUrls, recycleRuleIds });
+      await chrome.storage.local.set({ requests });
     }
     await notifyPopup();
   });
