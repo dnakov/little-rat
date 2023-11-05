@@ -1,0 +1,42 @@
+name: Node CI
+
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id || ! github.event.sender.id
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install, build
+        env:
+          PRIVATE_KEY: ${{ secrets.buildPem }}
+        run: |
+          npm install crx3
+          cat <<< $PRIVATE_KEY > ../build.pem
+          DIST=build/chrome
+          rm -rf $DIST
+          mkdir -p $DIST
+          mkdir dist
+          cp -r src $DIST/src
+          mkdir -p $DIST/assets
+          cp assets/little-rat-* $DIST/assets
+          cp manifest.json $DIST/manifest.json
+          npx crx3 -p ../build.pem -o dist/littleRat.crx -x dist/update.xml --crxURL https://raw.githubusercontent.com/tofuliang/little-rat/main/dist/littleRat.crx $DIST
+      - name: Set git identity
+        run: |
+          git config --global user.email "tofuliang@gmail.com"
+          git config --global user.name "tofuliang"
+          git add dist
+          git commit -m "update crx"
+          git push
+      - name: Debug on failure
+        uses: P3TERX/ssh2actions@main
+        if: ${{ failure() }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
