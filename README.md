@@ -1,7 +1,7 @@
 # <img src="assets/little-rat-128x128.png" width="24" />  little-rat
 
 
-# IMPORTANT: It's no longer possible to detect and block traffic from other extension unless you run Chrome with the `--extensions-on-chrome-urls` command line flag. See details [here](https://chromium-review.googlesource.com/c/chromium/src/+/5636396). 
+# IMPORTANT: It's no longer possible to detect and block traffic from other extension unless you enable the *extensions-on-chrome-urls* flag `chrome://flags/#extensions-on-chrome-urls` or run Chrome with the `--extensions-on-chrome-urls`. See details [here](https://chromium-review.googlesource.com/c/chromium/src/+/5636396). 
 
 
 🐀 Small chrome extension to monitor (and optionally block) other extensions' network calls
